@@ -1,5 +1,5 @@
 # Training parameters
-iterate_times = 100
+iteration_times = 100
 batch_size = 10
 learning_rate = 0.001
 
@@ -11,6 +11,10 @@ processed_images_directory = "D:\Digital_Media_Technology\Workspaces\Python\MID-
 
 # Processed image size
 processed_image_size = 64, 64
+
+
+# Noise mode default to Gaussian
+noise_mode = 'Gaussian'
 
 # Mean (mu) and standard deviation (sigma) for noise signal generation
 mu, sigma = 0, 0.05

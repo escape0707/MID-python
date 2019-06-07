@@ -4,14 +4,15 @@ import skimage
 from skimage import io, img_as_float
 
 
-# Import custom parameters
-# Input and output images directories
+# Import input and output images directories
 from parameters import original_images_directory as input_directory
 from parameters import processed_images_directory as output_directory
-# Output image size
+
+# Import output image size
 from parameters import processed_image_size
-# Mu & sigma for noise signal generation arguments
-from parameters import mu, sigma
+
+# Import noise mode, mu & sigma for noise signal generation arguments
+from parameters import noise_mode, mu, sigma
 
 
 # Purge the output folder
@@ -21,12 +22,16 @@ def purge_output_folder():
 
 
 # Find every image in input directory
-# Then do read, resize, normalize, add noise and save processes
-def process_data(input_directory = input_directory, 
-                 output_directory = output_directory,
-                 output_size = processed_image_size,
-                 mu = mu,
-                 sigma = sigma):
+# Then read, resize, normalize, add noise and save processes
+def process_data(input_directory=input_directory, 
+                 output_directory=output_directory,
+                 output_size=processed_image_size,
+                 noise_mode=noise_mode,
+                 mu=mu,
+                 sigma=sigma,
+                 save_original=True,
+                 save_noisy=True
+                 ):
 
     for folder_index, (dirpath, dirnames, filenames) in enumerate(os.walk(input_directory)):
 
@@ -38,7 +43,8 @@ def process_data(input_directory = input_directory,
 
         # Find and process image in each folder
         for file_index, filename in enumerate(filenames):
-            # Calculate input and output filepath | filename
+
+            # Calculate input/output filepath/filename
             infile_fullpath = os.path.join(dirpath, filename)
             outfile_name = str(file_index) + '.bmp'
 
@@ -53,18 +59,20 @@ def process_data(input_directory = input_directory,
             image -= image.min()
             image /= image.max()
 
-            # Save resized original image
-            outfile_original = os.path.join(output_directory_original, outfile_name)
-            io.imsave(outfile_original, image)
+            if save_original:
+                # Save resized original image
+                outfile_original = os.path.join(output_directory_original, outfile_name)
+                io.imsave(outfile_original, image)
 
-            # Add noise
-            noisy = skimage.util.random_noise(image, mode='Gaussian', mean=mu, var=sigma**2)
+            if save_noisy:
+                # Add noise
+                noisy = skimage.util.random_noise(image, mode=noise_mode, mean=mu, var=sigma**2)
 
-            # Save noisy image
-            outfile_noisy = os.path.join(output_directory_noisy, outfile_name)
-            io.imsave(outfile_noisy, noisy)
+                # Save noisy image
+                outfile_noisy = os.path.join(output_directory_noisy, outfile_name)
+                io.imsave(outfile_noisy, noisy)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  
     purge_output_folder()
     process_data()

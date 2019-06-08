@@ -70,8 +70,12 @@ transform = transforms.Compose(
      transforms.Normalize((0.5,), (0.5,))])
 
 # Initialize datasets
-trainset = TrainSet(transform)
-testset = TestSet(transform)
+trainset = DenoiseDataSet(noisy_images[:300] + noisy_images[-300:],
+                          original_images[:300] + original_images[-300:],
+                          transform)
+testset = DenoiseDataSet(noisy_images[300:-300],
+                         original_images[300:-300],
+                         transform)
 
 # Initialize DataLoader
 trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True)

@@ -72,7 +72,12 @@ def process_data(input_directory=input_directory,
                 outfile_noisy = os.path.join(output_directory_noisy, outfile_name)
                 io.imsave(outfile_noisy, noisy)
 
-
-if __name__ == "__main__":  
+# Function to go through the whole procedure
+def preprocess():
     purge_output_folder()
     process_data()
+
+
+# Only run the whole procedure by default when user explicitly run this file
+if __name__ == "__main__":
+    preprocess()

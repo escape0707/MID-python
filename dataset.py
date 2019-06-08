@@ -10,16 +10,16 @@ from parameters import batch_size, processed_images_directory
 
 # Find and index image files
 def index_data():
-    
+
     # Clear image indices
     noisy_images.clear()
     original_images.clear()
-    
+
     # Lookup noisy images
     for dirpath, dirnames, filenames in os.walk(os.path.join(processed_images_directory, 'noisy')):
         for filename in filenames:
             noisy_images.append(os.path.join(dirpath, filename))
-            
+
     # Lookup original images
     for dirpath, dirnames, filenames in os.walk(os.path.join(processed_images_directory, 'original')):
         for filename in filenames:
@@ -28,21 +28,21 @@ def index_data():
 
 # Define training dataset
 class DenoiseDataSet(Dataset):
-    
+
     def __init__(self, noisy_images, original_images, transform=None):
         self.noisy_images = noisy_images
         self.original_images = original_images
         self.transform = transform
-        
+
     def __len__(self):
         return len(self.noisy_images)
-    
+
     def __getitem__(self, index):
-        
+
         # Select noisy & original filepath
         noisy_filepath = self.noisy_images[index]
         original_filepath = self.original_images[index]
-                    
+
         # Read noisy & original image
         noisy = io.imread(noisy_filepath)
         original = io.imread(original_filepath)
@@ -51,7 +51,7 @@ class DenoiseDataSet(Dataset):
         if self.transform:
             noisy = self.transform(noisy)
             original = self.transform(original)
-            
+
         # Return noisy & original image as requested
         return noisy, original
 
@@ -110,16 +110,13 @@ if __name__ == "__main__":
     trainiter = iter(trainloader)
     testiter = iter(testloader)
 #%%
-# %matplotlib
+    # %matplotlib
     # Get images from iteraters
-    train_noisy, train_original = trainiter.next()
-    test_noisy, test_original = testiter.next()
+    data_mini_batches = trainiter.next() + testiter.next()
 
     # Plot first four images of the mini-batch from all dataloaders
     fig, axs = plt.subplots(4, sharex=True, sharey=True)
-    tensor_show(axs[0], make_grid(train_noisy[:4], nrow=4, normalize=True, range=(-1, 1)))
-    tensor_show(axs[1], make_grid(train_original[:4], nrow=4, normalize=True, range=(-1, 1)))
-    tensor_show(axs[2], make_grid(test_noisy[:4], nrow=4, normalize=True, range=(-1, 1)))
-    tensor_show(axs[3], make_grid(test_original[:4], nrow=4, normalize=True, range=(-1, 1)))
+    for i in range(4):
+        tensor_show(axs[i], make_grid(data_mini_batches[i][:4], nrow=4, normalize=True, range=(-1, 1)))
 
     plt.show()

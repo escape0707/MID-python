@@ -23,7 +23,7 @@ def purge_output_folder():
 
 # Find every image in input directory
 # Then read, resize, normalize, add noise and save processes
-def process_data(input_directory=input_directory, 
+def process_data(input_directory=input_directory,
                  output_directory=output_directory,
                  output_size=processed_image_size,
                  noise_mode=noise_mode,

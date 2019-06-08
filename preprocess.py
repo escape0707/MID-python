@@ -46,7 +46,7 @@ def process_data(input_directory=input_directory,
 
             # Calculate input/output filepath/filename
             infile_fullpath = os.path.join(dirpath, filename)
-            outfile_name = str(file_index) + '.bmp'
+            outfile_name = str(file_index) + '.png'
 
             # Try read image
             try:

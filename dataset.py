@@ -28,72 +28,33 @@ def index_data():
 
 
 # Define training dataset
-class TrainSet(Dataset):
+class DenoiseDataSet(Dataset):
     
-    def __init__(self, transform=None):
+    def __init__(self, noisy_images, original_images, transform=None):
+        self.noisy_images = noisy_images
+        self.original_images = original_images
         self.transform = transform
         
     def __len__(self):
-        # Training set size is 600
-        return 600
+        return len(self.noisy_images)
     
     def __getitem__(self, index):
         
-        # Training samples size from dataset 1 and 2 is 300 and 300
-        # Testing samples size from dataset 1 and 2 is 22 and 100
-        if index < 300:
-            img_name = noisy_images[index]
-            label_name = original_images[index]
-        else:
-            img_name = noisy_images[index + 22]
-            label_name = original_images[index + 22]
-            
-        # Read original and noisy image
-        image = io.imread(img_name)
-        label = io.imread(label_name)
+        # Select noisy & original filepath
+        noisy_filepath = self.noisy_images[index]
+        original_filepath = self.original_images[index]
+                    
+        # Read noisy & original image
+        noisy = io.imread(noisy_filepath)
+        original = io.imread(original_filepath)
 
         # Apply transform
         if self.transform:
-            image = self.transform(image)
-            label = self.transform(label)
+            noisy = self.transform(noisy)
+            original = self.transform(original)
             
-        # Return original and noisy image as requested
-        return image, label
-
-
-# Definition of testing dataset
-class TestSet(Dataset):
-    
-    def __init__(self, transform=None):
-        self.transform = transform
-        
-    def __len__(self):
-        # Testing set size is 122
-        return 122
-    
-    def __getitem__(self, index):
-        
-        # Training samples size from dataset 1 and 2 is 300 and 300
-        # Testing samples size from dataset 1 and 2 is 22 and 100
-        if index < 22:
-            img_name = noisy_images[index + 300]
-            label_name = original_images[index + 300]
-        else:
-            img_name = noisy_images[index + 600]
-            label_name = original_images[index + 600]
-            
-        # Read original and noisy image
-        image = io.imread(img_name)
-        label = io.imread(label_name)
-
-        
-        # Apply transform
-        if self.transform:
-            image = self.transform(image)
-            label = self.transform(label)
-            
-        # Return original and noisy image as requested
-        return image, label
+        # Return noisy & original image as requested
+        return noisy, original
 
 
 # Image filepath indices list

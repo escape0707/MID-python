@@ -3,8 +3,6 @@ import time
 import copy
 
 # functions to show an image
-import matplotlib.pyplot as plt
-import numpy as np
 import torch
 from torch import nn, optim
 from torchvision.utils import make_grid
@@ -61,8 +59,9 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=iteration_t
 
     # Train model by loop over the dataset multiple times
     for epoch in range(num_epochs):
-        print('Epoch {}/{}'.format(epoch + 1, num_epochs))
-        print('-' * 10)
+        if show_log:
+            print('Epoch {}/{}'.format(epoch + 1, num_epochs))
+            print('-' * 10)
 
         # Each epoch has a training and validation phase
         for phase in ['train', 'val']:
@@ -97,7 +96,8 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=iteration_t
                 running_loss += loss.item() * noisy.size(0)
 
             epoch_loss = running_loss / len(dataloaders[phase].dataset)
-            print('{} Loss: {:.4f}'.format(phase, epoch_loss))
+            if show_log:
+                print('{} Loss: {:.4f}'.format(phase, epoch_loss))
             loss_history[phase].append(epoch_loss)
 
     time_elapsed = time.time() - since
@@ -106,32 +106,32 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=iteration_t
     return model, loss_history
 
 
-def main():
-    # Detect and use GPU acceleration when possible
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+# Detect and use GPU acceleration when possible
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+show_log = __name__ == '__main__'
+
+if show_log:
     # Assuming that we are on a CUDA machine, this should print a CUDA device:
     print(device)
 
-    # Create model instance
-    model_ft = CNNDAE()
+# Create model instance
+model_ft = CNNDAE()
 
-    # Use optimal device to train the model
-    model_ft.to(device)
+# Use optimal device to train the model
+model_ft.to(device)
 
+if show_log:
     # Print the network architecture for sanity check reason
     print(model_ft)
 
-    # Dataloaders containing trainloader and testloader for training and validating
-    dataloaders_dict = {'train': trainloader, 'val': testloader}
+# Dataloaders containing trainloader and testloader for training and validating
+dataloaders_dict = {'train': trainloader, 'val': testloader}
 
-    # Set the criterion (the loss function) to be Mean Squared Error loss
-    criterion = nn.MSELoss()
+# Set the criterion (the loss function) to be Mean Squared Error loss
+criterion = nn.MSELoss()
 
-    # Set the optimizer (the optimize method) to be Adam algorithm
-    optimizer = optim.Adam(model_ft.parameters(), lr=learning_rate)
+# Set the optimizer (the optimize method) to be Adam algorithm
+optimizer = optim.Adam(model_ft.parameters(), lr=learning_rate)
 
-    model_ft, loss_history = train_model(model_ft, dataloaders_dict, criterion, optimizer, iteration_times)
-
-if __name__ == '__main__':
-    main()
+model_ft, loss_history = train_model(model_ft, dataloaders_dict, criterion, optimizer, iteration_times)

@@ -1,6 +1,5 @@
 import os
 
-import torch
 from skimage import io
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
@@ -81,29 +80,46 @@ testset = DenoiseDataSet(noisy_images[300:-300],
 trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True)
 testloader = DataLoader(testset, batch_size=batch_size)
 
-
+#%%
+# Simple tests to show some noisy & original images and other infos from both DataLoader
 if __name__ == "__main__":
+#%%
+    # Check the filepath of two image pairs
     print(noisy_images[0], noisy_images[-1])
     print(original_images[0], original_images[-1])
+#%%
+    # Check the filepath of the first ten image pairs
     for i in range(10):
         print(noisy_images[i])
         print(original_images[i])
+#%%
+    # Check the total of images
     print(len(noisy_images), len(original_images))
-
-
-if __name__ == "__main__":
-    
+#%%
+    # Import modules for images displaying
     import matplotlib.pyplot as plt
     import numpy as np
-    import torchvision
-    
-    def imshow(img):
-        img = img / 2 + 0.5
-        npimg = img.numpy()
-        plt.imshow(np.transpose(npimg, (1, 2, 0)))
-        plt.show()
-        
-    dataiter = iter(trainloader)
-    images, labels = dataiter.next()
-    
-    imshow(torchvision.utils.make_grid(images))
+    from torchvision.utils import make_grid
+
+    # Function to show an tensor in specified axes
+    def tensor_show(ax, tensor):
+        npimg = tensor.numpy()
+        ax.imshow(np.transpose(npimg, (1, 2, 0)))
+
+    # Generate iterater on dataloader
+    trainiter = iter(trainloader)
+    testiter = iter(testloader)
+#%%
+# %matplotlib
+    # Get images from iteraters
+    train_noisy, train_original = trainiter.next()
+    test_noisy, test_original = testiter.next()
+
+    # Plot first four images of the mini-batch from all dataloaders
+    fig, axs = plt.subplots(4, sharex=True, sharey=True)
+    tensor_show(axs[0], make_grid(train_noisy[:4], nrow=4, normalize=True, range=(-1, 1)))
+    tensor_show(axs[1], make_grid(train_original[:4], nrow=4, normalize=True, range=(-1, 1)))
+    tensor_show(axs[2], make_grid(test_noisy[:4], nrow=4, normalize=True, range=(-1, 1)))
+    tensor_show(axs[3], make_grid(test_original[:4], nrow=4, normalize=True, range=(-1, 1)))
+
+    plt.show()

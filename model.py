@@ -1,4 +1,7 @@
 # Import dependencies
+import time
+import copy
+
 import torch
 from torch import nn, optim
 from torchvision.utils import make_grid
@@ -26,9 +29,9 @@ def decode_block(in_f, out_f):
     )
 
 # Define convolutional auto encode-decode neural network architecture
-class Net(nn.Module):
+class CNNDAE(nn.Module):
     def __init__(self):
-        super(Net, self).__init__()
+        super(CNNDAE, self).__init__()
         
         self.encoder = nn.Sequential(
             encode_block(1, 64),
@@ -47,56 +50,52 @@ class Net(nn.Module):
         return x
     
 # Model training procedure
-def train_model():
-
-    # Detect and use GPU acceleration when possible
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-    # Assuming that we are on a CUDA machine, this should print a CUDA device:
-    if __name__ == '__main__':
-        print(device)
-
-    # Initialize the network / model
-    net = Net()
-
-    # Use optimal device to train the model
-    net.to(device)
-
-    # Set the model to train mode (for some specific circumstances when some layers in the network
-    # behaves differently in train mode and evaluate mode)
-    net.train()
-
-    # Print the network architecture for sanity check reason
-    if __name__ == '__main__':
-        print(net)
-
-    # Set the criterion (the loss function) to be Mean Squared Error loss
-    criterion = nn.MSELoss()
-
-    # Set the optimizer (the optimize method) to be Adam algorithm
-    optimizer = optim.Adam(net.parameters(), lr=learning_rate)
-
-    # Classify dataloaders by type
+def train_model(model, dataloaders, criterion, optimizer, num_epochs=iteration_times):
+    since = time.time()
 
     # Train model by loop over the dataset multiple times
-    for epoch in range(iteration_times):
-        # Set loss counter for training
-        training_loss = 0.0
-        for i, data in enumerate(trainloader):
+    for epoch in range(num_epochs):
+        print('Epoch {}/{}'.format(epoch + 1, num_epochs))
+        print('-' * 10)
+
+        # Each epoch has a training and validation phase
+        for phase in ['train', 'val']:
+            if phase == 'train':
+                model.train()  # Set model to training mode
+            else:
+                model.eval()  # Set model to evaluate mode
+
+            # Set loss counter
+            running_loss = 0.0
+
             # Get the inputs
-            noisy, original = data[0].to(device), data[1].to(device)
+            for noisy, original in dataloaders[phase]:
+                # Send inputs to correct device
+                noisy, original = noisy.to(device), original.to(device)
 
             # Zero the parameter gradients
             optimizer.zero_grad()
 
-            # Forward + backward + optimize
-            outputs = net(noisy)
+                # Forward and track history if only in train phase
+                with torch.set_grad_enabled(phase == 'train'):
+                    # Get model outputs and calculate loss
+                    outputs = model(noisy)
             loss = criterion(outputs, original)
+
+                # Backward + optimize only if in training phase
+                if phase == 'train':
             loss.backward()
             optimizer.step()
 
-            # Sum loss
-            training_loss += loss.item()
+                # Statistics
+                running_loss += loss.item() * noisy.size(0)
+            
+            epoch_loss = running_loss / len(dataloaders[phase].dataset)
+            print('{} Loss: {:.4f}'.format(phase, epoch_loss))
+            loss_history[phase].append(epoch_loss)
+    
+    time_elapsed = time.time() - since
+    print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
             
         # Print statistics
         print('[%d] training loss: %.10d' %

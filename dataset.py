@@ -98,13 +98,8 @@ if __name__ == "__main__":
 #%%
     # Import modules for images displaying
     import matplotlib.pyplot as plt
-    import numpy as np
     from torchvision.utils import make_grid
-
-    # Function to show an tensor in specified axes
-    def tensor_show(ax, tensor):
-        npimg = tensor.numpy()
-        ax.imshow(np.transpose(npimg, (1, 2, 0)))
+    from utils import tensor_show
 
     # Generate iterater on dataloader
     trainiter = iter(trainloader)

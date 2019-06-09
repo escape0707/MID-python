@@ -1,5 +1,6 @@
-import shutil
 import os
+import shutil
+import time
 
 import torch
 from torchvision.utils import save_image
@@ -7,7 +8,6 @@ from torchvision.utils import save_image
 from dataset import testloader
 from model import CNNDAE
 from parameters import device, final_output_directory, trained_model_filepath
-
 
 if __name__ == "__main__":
     model_ft = CNNDAE()
@@ -19,8 +19,13 @@ if __name__ == "__main__":
     os.makedirs(final_output_directory, exist_ok=True)
 
     with torch.no_grad():
+        since = time.time()
+
         for i, (noisy, _) in enumerate(testloader):
             outputs = torch.clamp(model_ft(noisy.to(device)).cpu(), min=-1, max=1)
             for j, output in enumerate(outputs):
                 final_filepath = os.path.join(final_output_directory, str(i * testloader.batch_size + j) + '.png')
                 save_image(output, final_filepath, normalize=True, range=(-1, 1))
+
+        time_elapsed = time.time() - since
+        print('Denoising complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))

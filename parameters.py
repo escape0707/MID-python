@@ -8,14 +8,15 @@ batch_size = 10
 learning_rate = 0.001
 
 # Detect and use GPU acceleration when possible
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 
 # Directory paths
-project_directory = "D:\\Digital_Media_Technology\\Workspaces\\Python\\MID-python"
-original_images_directory = join(project_directory,"original_images")
-processed_images_directory = join(project_directory,"images")
-trained_model_filepath = join(project_directory, "model", "trained_model.pt")
+project_directory = 'D:\\Digital_Media_Technology\\Workspaces\\Python\\MID-python'
+original_images_directory = join(project_directory,'original_images')
+processed_images_directory = join(project_directory,'images')
+trained_model_filepath = join(project_directory, 'model', 'trained_model.pt')
+final_output_directory = join(project_directory, 'final')
 
 
 # Processed image size

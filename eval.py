@@ -12,6 +12,8 @@ from model import CNNDAE
 from parameters import device, trained_model_filepath
 from utils import ndarray_show, tensor_show
 
+n_rows, n_columns = 5, 3
+
 #%%
 model_ft = CNNDAE()
 model_ft.load_state_dict(torch.load(trained_model_filepath))
@@ -28,10 +30,10 @@ testiter = iter(testloader)
 # CNNDAE
 # SSIM
 noisy, original = testiter.next()
-images = [noisy[:3], original[:3]]
+images = [noisy[:n_columns], original[:n_columns]]
 
 with torch.no_grad():
-    outputs = model_ft(noisy[:3].to(device)).to('cpu')
+    outputs = model_ft(noisy[:n_columns].to(device)).to('cpu')
 
 images.append(outputs)
 
@@ -53,14 +55,15 @@ for noisy_image in noisy_images:
     median_filter.append(img_to_tensor(median(noisy_image)))
 
 processed_images = images + [non_local_means, median_filter]
+method_names = ['Noisy','Origin','CNNDAE','Non-local means','Median filter']
 ssim = []
-fig, axs = plt.subplots(5, sharex=True, sharey=True)
-for i in range(5):
-    tensor_show(axs[i], make_grid(processed_images[i]))
+fig, axs = plt.subplots(n_rows, sharex=True, sharey=True)
+for i, images in enumerate(processed_images):
+    tensor_show(axs[i], make_grid(images))
 
     ssim.append([])
-    for j, processed_image in enumerate(processed_images[i]):
-        ssim[i].append(compare_ssim(np.squeeze(original[j].numpy()), np.squeeze(processed_image.numpy()), data_range=1))
-plt.show()
+    for j, image in enumerate(images):
+        ssim[i].append(compare_ssim(np.squeeze(original[j].numpy()), np.squeeze(image.numpy())))
 
-#%%
+    print('SSIM for %s is: %.6f' % (method_names[i], np.mean(ssim[i])))
+plt.show()

@@ -1,9 +1,14 @@
 from os.path import join
 
+import torch
+
 # Training parameters
 iteration_times = 100
 batch_size = 10
 learning_rate = 0.001
+
+# Detect and use GPU acceleration when possible
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 # Directory paths

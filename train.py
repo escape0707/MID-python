@@ -11,7 +11,9 @@ from dataset import testloader, trainloader
 from model import CNNDAE
 # Import iteration times of the training & learning rate of the Adam optimizer
 # Import trained model filepath for saving
-from parameters import iteration_times, learning_rate, trained_model_filepath
+# Import training device
+from parameters import (device, iteration_times, learning_rate,
+                        trained_model_filepath)
 
 
 # Model training procedure
@@ -70,9 +72,6 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=iteration_t
 
     return model, loss_history
 
-
-# Detect and use GPU acceleration when possible
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 show_log = __name__ == '__main__'
 

@@ -1,16 +1,15 @@
 # Import dependencies
-import time
 import copy
+import time
 
-# functions to show an image
 import torch
 from torch import nn, optim
-from torchvision.utils import make_grid
 
 # Import datasets and dataloaders
 from dataset import testloader, trainloader
 # Import iteration times of the training & learning rate of the Adam optimizer
-from parameters import iteration_times, learning_rate
+# Import trained model filepath for saving
+from parameters import iteration_times, learning_rate, trained_model_filepath
 
 
 # Define convolutional encoding block architecture
@@ -99,7 +98,8 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=iteration_t
             if show_log:
                 print('{} Loss: {:.4f}'.format(phase, epoch_loss))
             loss_history[phase].append(epoch_loss)
-
+        # Print a empty line between Losses of Epoches
+        print()
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
 
@@ -111,8 +111,8 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 show_log = __name__ == '__main__'
 
+# Assuming that we are on a CUDA machine, this should print a CUDA device:
 if show_log:
-    # Assuming that we are on a CUDA machine, this should print a CUDA device:
     print(device)
 
 # Create model instance
@@ -121,8 +121,8 @@ model_ft = CNNDAE()
 # Use optimal device to train the model
 model_ft.to(device)
 
+# Print the network architecture for sanity check reason
 if show_log:
-    # Print the network architecture for sanity check reason
     print(model_ft)
 
 # Dataloaders containing trainloader and testloader for training and validating
@@ -135,3 +135,21 @@ criterion = nn.MSELoss()
 optimizer = optim.Adam(model_ft.parameters(), lr=learning_rate)
 
 model_ft, loss_history = train_model(model_ft, dataloaders_dict, criterion, optimizer, iteration_times)
+
+def save_model(model=model_ft, path=trained_model_filepath):
+    torch.save(model.state_dict(), path)
+
+#%%
+if __name__ == "__main__":
+    from matplotlib import pyplot as plt
+    fig, ax = plt.subplots()
+    for x in ['train', 'val']:
+        ax.plot(loss_history[x], label=x)
+    legend = ax.legend(loc='upper right', shadow=True, fontsize='x-large')
+
+    # # Put a nicer background color on the legend.
+    # legend.get_frame().set_facecolor('C0')
+    # plt.savefig('D:\\loss.png')
+    plt.show()
+
+    save_model()

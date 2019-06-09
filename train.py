@@ -1,5 +1,6 @@
 # Import dependencies
 import copy
+import os
 import time
 
 import torch
@@ -13,7 +14,7 @@ from model import CNNDAE
 # Import trained model filepath for saving
 # Import training device
 from parameters import (device, iteration_times, learning_rate,
-                        trained_model_filepath)
+                        trained_model_directory, trained_model_filepath)
 
 
 # Model training procedure
@@ -100,7 +101,8 @@ optimizer = optim.Adam(model_ft.parameters(), lr=learning_rate)
 
 model_ft, loss_history = train_model(model_ft, dataloaders_dict, criterion, optimizer, iteration_times)
 
-def save_model(model=model_ft, path=trained_model_filepath):
+def save_model(model=model_ft, dir=trained_model_directory, path=trained_model_filepath):
+    os.makedirs(trained_model_directory, exist_ok=True)
     torch.save(model.state_dict(), path)
 
 #%%
